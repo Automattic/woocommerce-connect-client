@@ -75,7 +75,7 @@ before_script:
   - echo "memory_limit=256M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - phpenv config-rm xdebug.ini
   - curl -sSfL -o /home/travis/.phpenv/shims/phpunit https://phar.phpunit.de/phpunit-5.7.phar # Install phpunit 5.7 for use by legacy test scripts.
-  - bash tests/bin/install.sh wc_bookings_test root '' localhost $WP_VERSION
+  - bash tests/bin/install.sh $WP_MYSQL_E2E_DB $WP_MYSQL_E2E_USERNAME '' localhost $WP_VERSION
 
 # Save node_modules to speed up build
 cache:

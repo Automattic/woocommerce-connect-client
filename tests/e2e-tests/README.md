@@ -50,6 +50,9 @@ Set environmental variables as shown below. Note that you don't need to add the 
 - `export WP_ADMIN_USER_PW={your Admin user password}`
 - `export WP_CUSTOMER_USER_NAME={your Admin user password}`
 - `export WP_CUSTOMER_USER_PW={your Admin user password}`
+- `export WP_MYSQL_E2E_USERNAME={your mysql test database username}`
+- `export WP_MYSQL_E2E_PASSWORD={your mysql test database password}`
+- `export WP_MYSQL_E2E_HOST={your mysql test database host}`
 
 You can unset the variables when you are done:
 
@@ -58,6 +61,9 @@ You can unset the variables when you are done:
 - `unset WP_ADMIN_USER_PW`
 - `unset WP_CUSTOMER_USER_NAME`
 - `unset WP_CUSTOMER_USER_PW`
+- `unset WP_MYSQL_E2E_USERNAME`
+- `unset WP_MYSQL_E2E_PASSWORD`
+- `unset WP_MYSQL_E2E_HOST`
 
 ## Running tests
 

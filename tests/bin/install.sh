@@ -205,7 +205,8 @@ PHP
 		cd "$WP_CORE_DIR"
 		php wp-cli.phar plugin activate woocommerce-services
 		php wp-cli.phar plugin activate wc-services-testing-helper
-
+		php wp-cli.phar option update woocommerce_currency USD
+		php wp-cli.phar option update woocommerce_default_country US:CA
 		php wp-cli.phar option update jetpack_tos_agreed 1
 
 		php wp-cli.phar option update wc_connect_options '{"tos_accepted": true }' --format=json

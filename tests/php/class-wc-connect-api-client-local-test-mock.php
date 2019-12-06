@@ -24,6 +24,19 @@ if ( ! class_exists( 'WC_Connect_API_Client_Local_Test_Mock' ) ) {
 		}
 
 		/**
+		 * Gets mock endpoint data from json file as an associative array.
+		 *
+		 * json data structure must map connect server endpoints to
+		 * mock data that will be returned when WCS makes a request.
+		 *
+		 * @return object
+		 */
+		private function get_mock_endpoints_associative() {
+			$json_string = file_get_contents( plugin_dir_path( __FILE__ ) . 'test_data/services_data_mock_with_card_associative.json' );
+			return json_decode( $json_string, true );
+		}
+
+		/**
 		 * Returns mock data for what would otherwise come from WC connect server
 		 *
 		 * @param $method
@@ -36,6 +49,11 @@ if ( ! class_exists( 'WC_Connect_API_Client_Local_Test_Mock' ) ) {
 
 			if ( isset( $mock_data->mock_endpoints->$path ) ) {
 				return $mock_data->mock_endpoints->$path;
+			}
+
+			$mock_data_associative = $this->get_mock_endpoints_associative();
+			if ( isset( $mock_data_associative[ 'mock_endpoints' ][ $path ] ) ) {
+				return $mock_data_associative[ 'mock_endpoints' ][ $path ];
 			}
 			// Just return empty data for requests not matching mock endpoint data.
 			return new stdClass;
