@@ -92,6 +92,7 @@ class WC_Connect_TaxJar_Integration {
 		} else {
 			add_action( 'woocommerce_calculate_totals', array( $this, 'maybe_calculate_totals' ), 20 );
 		}
+		add_action( 'woocommerce_checkout_process', array( $this, 'maybe_calculate_totals' ), 20 );
 
 		// Calculate Taxes for Backend Orders (Woo 2.6+)
 		add_action( 'woocommerce_before_save_order_items', array( $this, 'calculate_backend_totals' ), 20 );
@@ -336,7 +337,6 @@ class WC_Connect_TaxJar_Integration {
 
 		$this->logger->error( $formatted_message, 'WCS Tax' );
 	}
-
 	/**
 	 * Wrapper to avoid calling calculate_totals() for admin carts.
 	 *
@@ -346,7 +346,6 @@ class WC_Connect_TaxJar_Integration {
 		if ( ! WC_Connect_Functions::should_send_cart_api_request() ) {
 			return;
 		}
-
 		$this->calculate_totals( $wc_cart_object );
 	}
 	/**
@@ -361,6 +360,12 @@ class WC_Connect_TaxJar_Integration {
 		// If outside of cart and checkout page or within mini-cart, skip calculations
 		if ( ( ! is_cart() && ! is_checkout() ) || ( is_cart() && is_ajax() ) ) {
 			return;
+		}
+
+		$skip_taxjar_request = false;
+		if ( !$wc_cart_object || is_string( $wc_cart_object ) ) {
+			$wc_cart_object = WC()->cart;
+			$skip_taxjar_request = true;
 		}
 
 		$cart_taxes = array();
@@ -387,6 +392,7 @@ class WC_Connect_TaxJar_Integration {
 			'to_street' => $address['to_street'],
 			'shipping_amount' => WC()->shipping->shipping_total,
 			'line_items' => $line_items,
+			'skip_taxjar_request' => $skip_taxjar_request,
 		) );
 
 		// Return if taxes could not be calculated.
@@ -815,6 +821,8 @@ class WC_Connect_TaxJar_Integration {
 		// Process $options array and turn them into variables
 		$options = is_array( $options ) ? $options : array();
 
+		$skip_taxjar_request = $options['skip_taxjar_request'];
+
 		extract( array_replace_recursive(array(
 			'to_country' => null,
 			'to_state' => null,
@@ -878,7 +886,7 @@ class WC_Connect_TaxJar_Integration {
 			$body['line_items'] = $line_items;
 		}
 
-		$response = $this->smartcalcs_cache_request( wp_json_encode( $body ) );
+		$response = $this->smartcalcs_cache_request( wp_json_encode( $body ), $skip_taxjar_request );
 
 		if ( isset( $response ) ) {
 			// Log the response
@@ -1021,11 +1029,11 @@ class WC_Connect_TaxJar_Integration {
 	 *
 	 * @return mixed|WP_Error
 	 */
-	public function smartcalcs_cache_request( $json ) {
+	public function smartcalcs_cache_request( $json, $skip_taxjar_request ) {
 		$cache_key = 'tj_tax_' . hash( 'md5', $json );
 		$response  = get_transient( $cache_key );
 
-		if ( false === $response ) {
+		if ( false === $response && false !== $skip_taxjar_request ) {
 			$response = $this->smartcalcs_request( $json );
 
 			if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
