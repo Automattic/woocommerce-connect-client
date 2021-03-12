@@ -19,7 +19,7 @@ class LabelItemInProgress extends LabelItem {
 
 		return (
 			<div className="shipping-label__item">
-				<p className="shipping-label__item-detail">
+				<div className="shipping-label__item-detail">
 					{ translate( '%(service)s label (#%(labelIndex)d)', {
 						args: {
 							service: serviceName,
@@ -28,7 +28,7 @@ class LabelItemInProgress extends LabelItem {
 					} ) }
 					<br />
 					{ translate( 'Purchasing…' ) }
-				</p>
+				</div>
 			</div>
 		);
 	}
