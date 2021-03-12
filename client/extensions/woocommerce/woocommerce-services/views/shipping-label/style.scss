@@ -61,6 +61,21 @@
 		}
 	}
 
+	.shipping-label__item-dropdown-menu {
+		.components-dropdown-menu__toggle {
+			height: 30px;
+			min-width: 26px;
+		}
+
+		.components-menu-item__button .gridicon {
+			height: 20px;
+			margin-left: 2px;
+			margin-right: 10px;
+			order: -10;
+			width: 20px;
+		}
+	}
+
 	.shipping-label__purchase-error {
 		color: var( --color-error );
 		cursor: help;
