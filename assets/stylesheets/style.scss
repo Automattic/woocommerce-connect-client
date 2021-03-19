@@ -43,7 +43,7 @@
 			text-shadow: none !important;
 		}
 		//wp-admin styles override the disabled button with !important, so need to do the same here
-		
+
 		&.is-busy {
 			background-size: 120px 100% !important;
 			background-image: linear-gradient(
@@ -319,16 +319,6 @@
 				text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
 			}
 		}
-	}
-}
-
-// Adding here so it will not have the .wp-core-ui.wp-admin .wcc-root prefix
-.shipping-label__item-menu-reprint-expired.popover__menu-item {
-	cursor: pointer;
-	background: transparent;
-	color: $muriel-gray-100;
-	.gridicon {
-		color: $muriel-gray-100;
 	}
 }
 

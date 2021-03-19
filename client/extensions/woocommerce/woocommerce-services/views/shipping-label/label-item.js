@@ -8,13 +8,17 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { localize } from 'i18n-calypso';
-import { Tooltip } from '@wordpress/components';
+import Gridicon from 'gridicons';
+
+/**
+ * WordPress dependencies
+ */
+import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import EllipsisMenu from 'components/ellipsis-menu';
-import PopoverMenuItem from 'components/popover/menu-item';
 import RefundDialog from './label-refund-modal';
 import ReprintDialog from './label-reprint-modal';
 import DetailsDialog from './label-details-modal';
@@ -24,32 +28,20 @@ import {
 	openReprintDialog,
 	openDetailsDialog,
 } from 'woocommerce/woocommerce-services/state/shipping-label/actions';
-import Gridicon from "gridicons";
 
 export class LabelItem extends Component {
 	renderRefund = ( labelId, expired, carrierId, trackingId ) => {
 		const { orderId, siteId, translate } = this.props;
-		let toolTipMessage = '';
+		let info     = '';
 		let disabled = false;
 
 		if ( expired ) {
-			toolTipMessage = translate( 'Labels older than 30 days cannot be refunded.' );
-			disabled       = true;
-		} 
-		else if ( 'usps' === carrierId && ! trackingId ) {
-			toolTipMessage = translate( 'USPS labels without tracking are not eligible for refund.' );
-			disabled       = true
+			info     = translate( 'Labels older than 30 days cannot be refunded.' );
+			disabled = true;
 		}
-
-		if ( disabled ) {
-			return (
-				<Tooltip position="top left" text={ toolTipMessage }>
-					<button className="popover__menu-item shipping-label__item-menu-reprint-expired" role="menuitem" tabIndex="-1">
-						<Gridicon icon="refund" size={ 18 }/>
-						<span> { translate( 'Request refund' ) } </span>
-					</button>
-				</Tooltip>
-			);
+		else if ( 'usps' === carrierId && ! trackingId ) {
+			info     = translate( 'USPS labels without tracking are not eligible for refund.' );
+			disabled = true
 		}
 
 		const openDialog = () => {
@@ -57,24 +49,23 @@ export class LabelItem extends Component {
 		};
 
 		return (
-			<PopoverMenuItem onClick={ openDialog } icon="refund">
+			<MenuItem
+				disabled={ disabled }
+				icon={ <Gridicon icon="refund" /> }
+				info={ info }
+				onClick={ openDialog }
+			>
 				{ translate( 'Request refund' ) }
-			</PopoverMenuItem>
+			</MenuItem>
 		);
 	};
 
 	renderReprint = ( labelId, expired ) => {
 		const { orderId, siteId, translate } = this.props;
+		let info = '';
 
 		if ( expired ) {
-			return (
-				<Tooltip position="top left" text={ translate('Label images older than 180 days are deleted by our technology partners for general security and data privacy concerns.') }>
-					<button className="popover__menu-item shipping-label__item-menu-reprint-expired" role="menuitem" tabIndex="-1">
-						<Gridicon icon="print" size={ 18 }/>
-						<span> { translate( 'Reprint' ) } </span>
-					</button>
-				</Tooltip>
-			);
+			info = translate( 'Label images older than 180 days are deleted by our technology partners for general security and data privacy concerns.' );
 		}
 
 		const openDialog = () => {
@@ -82,9 +73,14 @@ export class LabelItem extends Component {
 		};
 
 		return (
-			<PopoverMenuItem onClick={ openDialog } icon="print">
+			<MenuItem
+				disabled={ expired }
+				icon={ <Gridicon icon="print" /> }
+				info={ info }
+				onClick={ openDialog }
+			>
 				{ translate( 'Reprint shipping label' ) }
-			</PopoverMenuItem>
+			</MenuItem>
 		);
 	};
 
@@ -96,9 +92,9 @@ export class LabelItem extends Component {
 		};
 
 		return (
-			<PopoverMenuItem onClick={ openDialog } icon="info-outline">
+			<MenuItem onClick={ openDialog } icon={ <Gridicon icon="info-outline" /> }>
 				{ translate( 'View details' ) }
-			</PopoverMenuItem>
+			</MenuItem>
 		);
 	};
 
@@ -120,9 +116,9 @@ export class LabelItem extends Component {
 		};
 
 		return (
-			<PopoverMenuItem onClick={ onClickOpenPage } icon="external">
+			<MenuItem onClick={ onClickOpenPage } icon={ <Gridicon icon="external" /> }>
 				{ translate( 'Schedule a pickup' ) }
-			</PopoverMenuItem>
+			</MenuItem>
 		);
 	};
 
@@ -138,9 +134,9 @@ export class LabelItem extends Component {
 		}
 
 		return (
-			<PopoverMenuItem onClick={ printCommercialInvoice } icon="print">
+			<MenuItem onClick={ printCommercialInvoice } icon={ <Gridicon icon="print" /> }>
 				{ translate( 'Print customs form' ) }
-			</PopoverMenuItem>
+			</MenuItem>
 		);
 	}
 
@@ -192,7 +188,7 @@ export class LabelItem extends Component {
 
 		return (
 			<div className="shipping-label__item">
-				<p className="shipping-label__item-detail">
+				<div className="shipping-label__item-detail">
 					{ translate( '%(service)s label (#%(labelIndex)d)', {
 						args: {
 							service: serviceName,
@@ -202,13 +198,19 @@ export class LabelItem extends Component {
 					{ showDetails && (
 						<span>
 							{ ( ! isModal && (
-								<EllipsisMenu position="bottom left">
-									{ this.renderLabelDetails( labelId ) }
-									{ this.renderPickup( carrierId ) }
-									{ this.renderRefund( labelId, refundExpired, carrierId, tracking ) }
-									{ this.renderReprint( labelId, expired ) }
-									{ this.renderCommercialInvoiceLink( commercialInvoiceUrl ) }
-								</EllipsisMenu>
+								<DropdownMenu className="shipping-label__item-dropdown-menu" icon={ <Gridicon icon="ellipsis" /> } label={ translate( 'Toggle menu' ) } popoverProps={ { position: 'bottom left' } }>
+									{ () => (
+										<Fragment>
+											<MenuGroup>
+												{ this.renderLabelDetails( labelId ) }
+												{ this.renderPickup( carrierId ) }
+												{ this.renderRefund( labelId, refundExpired, carrierId, tracking ) }
+												{ this.renderReprint( labelId, expired ) }
+												{ this.renderCommercialInvoiceLink( commercialInvoiceUrl ) }
+											</MenuGroup>
+										</Fragment>
+									) }
+								</DropdownMenu>
 							) ) }
 							<DetailsDialog
 								siteId={ siteId }
@@ -231,7 +233,7 @@ export class LabelItem extends Component {
 							<ReprintDialog siteId={ siteId } orderId={ orderId } labelId={ labelId } />
 						</span>
 					) }
-				</p>
+				</div>
 				{ showDetails && (
 					<p className="shipping-label__item-tracking">
 						{ translate( 'Tracking #: {{trackingLink/}}', {

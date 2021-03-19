@@ -24,10 +24,6 @@
 		margin-top: 16px;
 	}
 
-	.ellipsis-menu__toggle {
-		padding: 0;
-	}
-
 	.shipping-label__item-detail, .shipping-label__item-actions {
 		display: flex;
 		justify-content: space-between;
@@ -46,7 +42,9 @@
 	}
 
 	.shipping-label__item-detail {
+		line-height: 1.5;
 		margin-bottom: 6px;
+		text-align: left;
 
 		a {
 			vertical-align: text-top;
@@ -58,6 +56,21 @@
 
 		a {
 			margin-top: 10px;
+		}
+	}
+
+	.shipping-label__item-dropdown-menu {
+		.components-dropdown-menu__toggle {
+			height: 30px;
+			min-width: 26px;
+		}
+
+		.components-menu-item__button .gridicon {
+			height: 20px;
+			margin-left: 2px;
+			margin-right: 10px;
+			order: -10;
+			width: 20px;
 		}
 	}
 
