@@ -13,7 +13,7 @@ import { connect } from 'react-redux';
 import { getPaperSizes } from 'lib/pdf-label-utils';
 import * as PrintTestLabelActions from './state/actions';
 import ErrorNotice from 'components/error-notice';
-import FormButton from 'components/forms/form-button';
+import FormButton from 'wcs-client/components/forms/form-button';
 import FormFieldset from 'components/forms/form-fieldset';
 import FormSelect from 'wcs-client/components/forms/form-select';
 import FormLegend from 'components/forms/form-legend';

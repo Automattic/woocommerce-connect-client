@@ -13,7 +13,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import FormButton from 'components/forms/form-button';
+import FormButton from 'wcs-client/components/forms/form-button';
 import Notice from 'components/notice';
 import AddressSummary from './summary';
 import { ACCEPTED_USPS_ORIGIN_COUNTRIES } from 'woocommerce/woocommerce-services/state/shipping-label/constants';
