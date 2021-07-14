@@ -1,30 +1,27 @@
 <?php
 
-use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Manager;
 
 if ( ! class_exists( 'WC_Connect_Jetpack' ) ) {
 	class WC_Connect_Jetpack {
+		const JETPACK_PLUGIN_SLUG = 'woocommerce-services';
+
+		public static function get_connection_manager() {
+			return new Manager( self::JETPACK_PLUGIN_SLUG );
+		}
+
 		/**
-		 * @param $user_id
+		 * @param boolean $user_id false: Returns the Blog Token. true: Return the master user's User Token.
 		 *
 		 * @return stdClass|WP_Error
 		 */
-		public static function get_master_user_access_token( $user_id ) {
-			if ( class_exists( '\Automattic\Jetpack\Connection\Tokens' ) && method_exists( '\Automattic\Jetpack\Connection\Tokens', 'get_access_token' ) ) {
-				$connection = new Tokens();
-
-				return $connection->get_access_token( $user_id );
+		public static function get_access_token( $user_id = false ) {
+			// Standalone Jetpack 9.5+ installation
+			if ( class_exists( '\Automattic\Jetpack\Connection\Tokens' ) ) {
+				return self::get_connection_manager()->get_tokens()->get_access_token( $user_id );
 			}
 
-			if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) && method_exists( '\Automattic\Jetpack\Connection\Manager', 'get_access_token' ) ) {
-				$connection = new Manager();
-
-				return $connection->get_access_token( $user_id );
-			}
-
-			// fallback
-			return new stdClass();
+			return self::get_connection_manager()->get_access_token( $user_id );
 		}
 
 		/**
@@ -35,6 +32,7 @@ if ( ! class_exists( 'WC_Connect_Jetpack' ) ) {
 		public static function is_development_mode() {
 			if ( method_exists( '\\Automattic\\Jetpack\\Status', 'is_offline_mode' ) ) {
 				$status = new \Automattic\Jetpack\Status();
+
 				return $status->is_offline_mode();
 			}
 
@@ -47,14 +45,7 @@ if ( ! class_exists( 'WC_Connect_Jetpack' ) ) {
 		 * @return bool
 		 */
 		public static function is_active() {
-			if ( defined( 'WOOCOMMERCE_SERVICES_LOCAL_TEST_MODE' ) && WOOCOMMERCE_SERVICES_LOCAL_TEST_MODE ) {
-				return true;
-			}
-			if ( method_exists( 'Jetpack', 'is_active' ) ) {
-				return Jetpack::is_active();
-			}
-
-			return false;
+			return ! empty ( self::get_access_token( true ) );
 		}
 
 		/**
@@ -63,16 +54,9 @@ if ( ! class_exists( 'WC_Connect_Jetpack' ) ) {
 		 * @return bool
 		 */
 		public static function is_staging_site() {
-			if ( method_exists( '\\Automattic\\Jetpack\\Status', 'is_staging_site' ) ) {
-				$status = new \Automattic\Jetpack\Status();
-				return $status->is_staging_site();
-			}
+			$jetpack_status = new \Automattic\Jetpack\Status();
 
-			if ( method_exists( 'Jetpack', 'is_staging_site' ) ) {
-				return Jetpack::is_staging_site();
-			}
-
-			return false;
+			return $jetpack_status->is_staging_site();
 		}
 
 		/**
@@ -83,7 +67,9 @@ if ( ! class_exists( 'WC_Connect_Jetpack' ) ) {
 		public static function is_atomic_site() {
 			if ( function_exists( 'jetpack_is_atomic_site' ) ) {
 				return jetpack_is_atomic_site();
-			} elseif ( function_exists( 'jetpack_is_automated_transfer_site' ) ) {
+			}
+
+			if ( function_exists( 'jetpack_is_automated_transfer_site' ) ) {
 				return jetpack_is_automated_transfer_site();
 			}
 
@@ -91,17 +77,7 @@ if ( ! class_exists( 'WC_Connect_Jetpack' ) ) {
 		}
 
 		public static function get_connected_user_data( $user_id ) {
-			if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) && method_exists( '\Automattic\Jetpack\Connection\Manager', 'get_connected_user_data' ) ) {
-				$connection = new Manager();
-
-				return $connection->get_connected_user_data( $user_id );
-			}
-
-			if ( method_exists( 'Jetpack', 'get_connected_user_data' ) ) {
-				return Jetpack::get_connected_user_data( $user_id );
-			}
-
-			return false;
+			return self::get_connection_manager()->get_connected_user_data( $user_id );
 		}
 
 		/**
@@ -110,28 +86,14 @@ if ( ! class_exists( 'WC_Connect_Jetpack' ) ) {
 		 * @return WP_User | false
 		 */
 		public static function get_master_user() {
-			include_once ABSPATH . 'wp-admin/includes/plugin.php';
 			if ( self::is_active() && method_exists( 'Jetpack_Options', 'get_option' ) ) {
 				$master_user_id = Jetpack_Options::get_option( 'master_user' );
+
 				return get_userdata( $master_user_id );
 			}
 
 			return false;
 
-		}
-
-		/**
-		 * Builds a connect url
-		 *
-		 * @param $redirect_url
-		 * @return string
-		 */
-		public static function build_connect_url( $redirect_url ) {
-			return Jetpack::init()->build_connect_url(
-				true,
-				$redirect_url,
-				'woocommerce-services-auto-authorize'
-			);
 		}
 
 		/**
@@ -142,15 +104,9 @@ if ( ! class_exists( 'WC_Connect_Jetpack' ) ) {
 		 * @param
 		 */
 		public static function tracks_record_event( $user, $event_type, $data ) {
-			if ( version_compare( JETPACK__VERSION, '7.5', '<' ) ) {
-				if ( function_exists( 'jetpack_tracks_record_event' ) ) {
-					return jetpack_tracks_record_event( $user, $event_type, $data );
-				}
-			} elseif ( class_exists( 'Automattic\\Jetpack\\Tracking' ) ) {
-				$tracking = new Automattic\Jetpack\Tracking();
-				return $tracking->tracks_record_event( $user, $event_type, $data );
-			}
-			return false;
+			$tracking = new Automattic\Jetpack\Tracking();
+
+			return $tracking->tracks_record_event( $user, $event_type, $data );
 		}
 
 		/**
@@ -159,40 +115,57 @@ if ( ! class_exists( 'WC_Connect_Jetpack' ) ) {
 		 * @return bool Whether or nor the current user is connected to Jetpack
 		 */
 		public static function is_current_user_connected() {
-			if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) && method_exists( '\Automattic\Jetpack\Connection\Manager', 'is_user_connected' ) ) {
-				$connection = new Manager();
-
-				return $connection->is_user_connected();
-			}
-
-			if ( defined( 'JETPACK_MASTER_USER' ) ) {
-				$user_token = self::get_master_user_access_token( JETPACK_MASTER_USER );
-
-				return ( isset( $user_token->external_user_id ) && get_current_user_id() === $user_token->external_user_id );
-			}
-
-			return false;
+			return self::get_connection_manager()->is_user_connected();
 		}
 
 		/**
-		 * Determines if Jetpack is connected
+		 * Determines if Jetpack is connected for the plugin
 		 *
 		 * @return bool Whether or nor Jetpack is connected
 		 */
 		public static function is_connected() {
-			if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) && method_exists( '\Automattic\Jetpack\Connection\Manager', 'is_connected' ) ) {
-				$connection = new Manager();
+			$manager = self::get_connection_manager();
 
-				return $connection->is_connected();
+			return $manager->is_plugin_enabled() && self::is_active() && ! $manager->is_missing_connection_owner();
+		}
+
+		/**
+		 * Connects the site to Jetpack.
+		 * This code performs a redirection, so anything executed after it will be ignored.
+		 *
+		 * @param $redirect_url
+		 */
+		public static function connect_site( $redirect_url ) {
+			// Mark the plugin as enabled in case it had been soft-disconnected.
+			$jetpack_connection_manager = self::get_connection_manager();
+			$jetpack_connection_manager->enable_plugin();
+
+			// Register the site to wp.com.
+			// standalone JP 9.2+ uses `is_connected`
+			$is_registered = false;
+			if ( method_exists( $jetpack_connection_manager, 'is_connected' ) ) {
+				$is_registered = $jetpack_connection_manager->is_connected();
+			} else {
+				$is_registered = $jetpack_connection_manager->is_registered();
 			}
 
-			if ( defined( 'JETPACK_MASTER_USER' ) ) {
-				$user_token = self::get_master_user_access_token( JETPACK_MASTER_USER );
-
-				return isset( $user_token->external_user_id );
+			if ( ! $is_registered ) {
+				$result = $jetpack_connection_manager->register();
+				if ( is_wp_error( $result ) ) {
+					wp_die( $result->get_error_message(), 'wc_services_jetpack_register_site_failed', 500 );
+				}
 			}
 
-			return false;
+			// Redirect the user to the Jetpack user connection flow.
+			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false' );
+
+			wp_redirect(
+				add_query_arg(
+					[ 'from' => WC_Connect_Jetpack::JETPACK_PLUGIN_SLUG ],
+					$jetpack_connection_manager->get_authorization_url( null, $redirect_url )
+				)
+			);
+			exit;
 		}
 	}
 }

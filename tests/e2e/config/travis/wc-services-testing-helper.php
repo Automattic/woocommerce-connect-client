@@ -12,7 +12,6 @@ define( 'JETPACK_DEV_DEBUG', true );
 define( 'WOOCOMMERCE_SERVICES_LOCAL_TEST_MODE', true );
 define( 'WOOCOMMERCE_CONNECT_FREQUENT_FETCH', true );
 define( 'WOOCOMMERCE_CONNECT_SERVER_URL', 'http://host.docker.internal:5000/' );
-define( 'WOOCOMMERCE_SERVICES_CI_TEST_MODE', true );
 
 if ( get_option( 'woocommerce_default_country' ) !== 'US:NY' ) {
 	update_option( 'woocommerce_store_address', '1480 York Ave' );

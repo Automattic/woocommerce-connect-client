@@ -466,7 +466,7 @@ if ( ! class_exists( 'WC_Connect_API_Client' ) ) {
 					'dimension_unit'       => strtolower( get_option( 'woocommerce_dimension_unit' ) ),
 					'weight_unit'          => strtolower( get_option( 'woocommerce_weight_unit' ) ),
 					'wcs_version'          => WC_Connect_Loader::get_wcs_version(),
-					'jetpack_version'      => JETPACK__VERSION,
+					'jetpack_version'      => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : 'embed',
 					'is_atomic'            => WC_Connect_Jetpack::is_atomic_site(),
 					'wc_version'           => WC()->version,
 					'wp_version'           => get_bloginfo( 'version' ),
@@ -512,7 +512,7 @@ if ( ! class_exists( 'WC_Connect_API_Client' ) ) {
 		}
 
 		protected function authorization_header() {
-			$token = WC_Connect_Jetpack::get_master_user_access_token( 0 );
+			$token = WC_Connect_Jetpack::get_access_token();
 			$token = apply_filters( 'wc_connect_jetpack_access_token', $token );
 			if ( ! $token || empty( $token->secret ) ) {
 				return new WP_Error(
@@ -529,7 +529,7 @@ if ( ! class_exists( 'WC_Connect_API_Client' ) ) {
 			}
 
 			list( $token_key, $token_secret ) = explode( '.', $token->secret );
-			$token_key                        = sprintf( '%s:%d:%d', $token_key, JETPACK__API_VERSION, $token->external_user_id );
+			$token_key                        = sprintf( '%s:%d:%d', $token_key, defined( 'JETPACK__API_VERSION' ) ? JETPACK__API_VERSION : 'embed', $token->external_user_id );
 			$time_diff                        = (int) Jetpack_Options::get_option( 'time_diff' );
 			$timestamp                        = time() + $time_diff;
 			$nonce                            = wp_generate_password( 10, false );

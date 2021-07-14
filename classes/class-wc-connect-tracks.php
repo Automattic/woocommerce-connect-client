@@ -66,10 +66,6 @@ if ( ! class_exists( 'WC_Connect_Tracks' ) ) {
 		}
 
 		public function record_user_event( $event_type, $data = array() ) {
-			if ( ! function_exists( 'jetpack_tracks_record_event' ) && ! class_exists( 'Automattic\\Jetpack\\Tracking' ) ) {
-				$this->debug( 'Error. jetpack_tracks_record_event is not defined.' );
-				return;
-			}
 			$user     = wp_get_current_user();
 			$site_url = get_option( 'siteurl' );
 
@@ -82,7 +78,7 @@ if ( ! class_exists( 'WC_Connect_Tracks' ) ) {
 			}
 
 			// Check for Jetpack
-			$jp_version = 'unavailable';
+			$jp_version = 'embed';
 			if ( defined( 'JETPACK__VERSION' ) ) {
 				$jp_version = JETPACK__VERSION;
 			}

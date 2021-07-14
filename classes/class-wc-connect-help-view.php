@@ -73,26 +73,8 @@ if ( ! class_exists( 'WC_Connect_Help_View' ) ) {
 			// Only one of the following should present
 			// Check that Jetpack is active
 			// Check that Jetpack is connected
-			include_once ABSPATH . 'wp-admin/includes/plugin.php'; // required for is_plugin_active
 			$is_connected = WC_Connect_Jetpack::is_active() || WC_Connect_Jetpack::is_development_mode();
-			if ( ! is_plugin_active( 'jetpack/jetpack.php' ) ) {
-				$health_item = array(
-					'state'   => 'error',
-					'message' => sprintf(
-						__( 'Please install and activate the Jetpack plugin, version %s or higher', 'woocommerce-services' ),
-						WOOCOMMERCE_CONNECT_MINIMUM_JETPACK_VERSION
-					),
-				);
-			} elseif ( version_compare( JETPACK__VERSION, WOOCOMMERCE_CONNECT_MINIMUM_JETPACK_VERSION, '<' ) ) {
-				$health_item = array(
-					'state'   => 'error',
-					'message' => sprintf(
-						__( 'Jetpack %1$s or higher is required (You are running %2$s)', 'woocommerce-services' ),
-						WOOCOMMERCE_CONNECT_MINIMUM_JETPACK_VERSION,
-						JETPACK__VERSION
-					),
-				);
-			} elseif ( ! $is_connected ) {
+			if ( ! $is_connected ) {
 				$health_item = array(
 					'state'   => 'error',
 					'message' => __( 'Jetpack is not connected to WordPress.com. Make sure the Jetpack plugin is installed, activated, and connected.', 'woocommerce-services' ),
@@ -105,10 +87,7 @@ if ( ! class_exists( 'WC_Connect_Help_View' ) ) {
 			} else {
 				$health_item = array(
 					'state'   => 'success',
-					'message' => sprintf(
-						__( 'Jetpack %s is connected and working correctly', 'woocommerce-services' ),
-						JETPACK__VERSION
-					),
+					'message' => __( 'Jetpack is connected and working correctly', 'woocommerce-services' ),
 				);
 			}
 			$health_items['jetpack'] = $health_item;

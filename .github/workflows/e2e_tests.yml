@@ -13,9 +13,16 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          tools: composer
+          extensions: mysql
+          coverage: none
       - uses: actions/setup-node@v2
         with:
           node-version: '10.16.0'
+      - run: composer self-update 2.0.6 && composer install --no-progress
       - run: npm ci
       - run: npm install jest --global
       - run: npm run dist

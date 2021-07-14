@@ -98,10 +98,6 @@ cli config set WOOCOMMERCE_CONNECT_SERVER_URL http://host.docker.internal:5000/
 echo "Updating permalink structure"
 cli wp rewrite structure '/%postname%/'
 
-# Jetpack is currently required to make WCS work
-echo "Installing and activating Jetpack..."
-cli wp plugin install jetpack --activate
-
 echo "Installing and activating WooCommerce..."
 cli wp plugin install woocommerce --activate
 
