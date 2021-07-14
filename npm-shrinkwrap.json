@@ -12671,9 +12671,9 @@
       }
     },
     "dompurify": {
-      "version": "0.8.9",
-      "resolved": "https://registry.npmjs.org/dompurify/-/dompurify-0.8.9.tgz",
-      "integrity": "sha1-/OwCH5F7UfQqeK9x14dae6UU/WQ="
+      "version": "2.0.7",
+      "resolved": "https://registry.npmjs.org/dompurify/-/dompurify-2.0.7.tgz",
+      "integrity": "sha512-S3O0lk6rFJtO01ZTzMollCOGg+WAtCwS3U5E2WSDY/x/sy7q70RjEC4Dmrih5/UqzLLB9XoKJ8KqwBxaNvBu4A=="
     },
     "domutils": {
       "version": "2.5.0",
@@ -19102,7 +19102,8 @@
     "picomatch": {
       "version": "2.2.2",
       "resolved": "https://registry.npmjs.org/picomatch/-/picomatch-2.2.2.tgz",
-      "integrity": "sha512-q0M/9eZHzmr0AulXyPwNfZjtwZ/RBZlbN3K3CErVrk50T2ASYI7Bye0EvekFY3IP1Nt2DHu0re+V2ZHIpMkuWg=="
+      "integrity": "sha512-q0M/9eZHzmr0AulXyPwNfZjtwZ/RBZlbN3K3CErVrk50T2ASYI7Bye0EvekFY3IP1Nt2DHu0re+V2ZHIpMkuWg==",
+      "optional": true
     },
     "pify": {
       "version": "4.0.1",
